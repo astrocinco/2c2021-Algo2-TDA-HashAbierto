@@ -90,7 +90,6 @@ lista_iter_t* aux_posicionar_iterador(hash_t* hash, const char* clave){
 }
 
 void hash_redimensionar(hash_t* hash, int nueva_capacidad){
-    
     // Crear nuevo arreglo
     // Pasar todos elementos a nueva pos (considerando fun hashing % nueva_cap)
     // Asignar nuevo arreglo como actual

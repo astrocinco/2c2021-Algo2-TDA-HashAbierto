@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("\n~~~ PRUEBAS CÁTEDRA ~~~\n");
-    pruebas_hash_catedra();
+    pruebas_hash_catedra(); // Si falla, mover a 26
 #endif
 
     return failure_count() > 0;

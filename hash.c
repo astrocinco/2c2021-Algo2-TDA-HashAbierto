@@ -168,6 +168,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
     if (hash->capacidad / hash->carga < FACTOR_CARGA_MIN) hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP);
     return dato;
 }
+
 /* Destruye la estructura liberando la memoria pedida y llamando a la función
  * destruir para cada par (clave, dato).
  * Pre: La estructura hash fue inicializada

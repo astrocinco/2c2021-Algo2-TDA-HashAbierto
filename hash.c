@@ -199,8 +199,20 @@ hash_iter_t *hash_iter_crear(const hash_t *hash){
 }
 
 // Avanza iterador
-bool hash_iter_avanzar(hash_iter_t *iter){
-    
+bool hash_iter_avanzar(hash_iter_t *iter){ // REVISAR
+    if (iter->al_final) return false;
+
+    if (lista_iter_al_final(iter->iterador_pos_arreglo)){
+        iter->pos_en_arreglo++;
+        while(lista_esta_vacia(iter->pos_en_arreglo)){
+            iter->pos_en_arreglo++;
+        }
+        free(iter->iterador_pos_arreglo);
+        iter->iterador_pos_arreglo = lista_iter_crear(iter->hash->arreglo[iter->pos_en_arreglo]);
+    } else {
+        lista_iter_avanzar(iter->iterador_pos_arreglo);
+    }
+    return true;
 }
 
 // Devuelve clave actual, esa clave no se puede modificar ni liberar.

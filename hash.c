@@ -30,6 +30,8 @@ typedef struct hash{
 typedef struct hash_iter{
     hash_t* hash;
     int pos_en_arreglo;
+    lista_iter_t* iterador_pos_arreglo;
+    bool al_final;
 } hash_iter_t;
 
 typedef struct campo{
@@ -47,7 +49,7 @@ campo_t* campo_crear(char* clave, void* dato){
     return campo;
 }
 
-void campo_destruir(campo_t* campo){ // PUEDE QUE ACÁ FALTE ALGO DE DESTRUIR EL CONTENIDO DEL CAMPO
+void campo_destruir(campo_t* campo){ 
     free(campo);
 }
 
@@ -89,11 +91,16 @@ lista_iter_t* aux_posicionar_iterador(hash_t* hash, const char* clave){
     return iterador;
 }
 
-void hash_redimensionar(hash_t* hash, int nueva_capacidad){
-    // Crear nuevo arreglo
-    // Pasar todos elementos a nueva pos (considerando fun hashing % nueva_cap)
-    // Asignar nuevo arreglo como actual
+void hash_redimensionar(hash_t* hash, int nueva_capacidad){ // HACER ----------
+    void** nuevo_arreglo_dinamico = malloc(sizeof(lista_t*) * CAP_INICIAL);
+    if (nuevo_arreglo_dinamico == NULL) return NULL;
+    // Crear nuevo arreglo ^
+    // -ACÁ VA ITERADOR INTERNO
+    // Pasar todos elementos a nueva pos ^(considerando fun hashing % nueva_cap)
+    free(hash->arreglo);
     // Eliminar viejo arreglo
+    hash->arreglo = nuevo_arreglo_dinamico;
+    // Asignar nuevo arreglo como actual ^
 }
 
 /* Determina si clave pertenece o no al hash.
@@ -112,7 +119,10 @@ bool hash_pertenece(const hash_t *hash, const char *clave){
  * Post: Se almacenó el par (clave, dato)
  */
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){ 
-    if (hash_pertenece(hash, clave)) hash_borrar(hash, clave); // Tal vez deba agarrar el viejo dato y borrarlo
+    if (hash_pertenece(hash, clave)) {
+        void* dato_reemplazado = hash_borrar(hash, clave);
+        hash->funcion_destruir_dato(dato_reemplazado); // REVISAR
+    } 
 
     int posicion = FUN_HASHING(clave) % hash->capacidad;
     campo_t* campo_agregado = campo_crear(clave, dato);
@@ -163,24 +173,48 @@ void *hash_borrar(hash_t *hash, const char *clave){
  * Pre: La estructura hash fue inicializada
  * Post: La estructura hash fue destruida
  */
-void hash_destruir(hash_t *hash){
+void hash_destruir(hash_t *hash){ // HACER ------
+    // -- ITERADOR INTERNO
+        //hash->funcion_destruir_dato(-----);
+        //campo_destruir(-----);
+        //lista_destruir(-----);
     // Ir elemento por elemento borrando su dato y su campo
-    // Borrar hash
+    free(hash->arreglo);
+    free(hash);
+    // Borrar hash ^
 }
 
 /* Iterador del hash */
 
 // Crea iterador
-hash_iter_t *hash_iter_crear(const hash_t *hash);
+hash_iter_t *hash_iter_crear(const hash_t *hash){
+    hash_iter_t* iterador = malloc(sizeof(hash_iter_t));
+    if (iterador == NULL) return NULL;
+
+    iterador->hash = hash;
+    iterador->pos_en_arreglo = 0;
+    iterador->iterador_pos_arreglo = lista_iter_crear(iterador->hash->arreglo[iterador->pos_en_arreglo]);
+    if (iterador->hash->carga == 0) iterador->al_final = true;
+    return iterador;
+}
 
 // Avanza iterador
-bool hash_iter_avanzar(hash_iter_t *iter);
+bool hash_iter_avanzar(hash_iter_t *iter){
+    
+}
 
 // Devuelve clave actual, esa clave no se puede modificar ni liberar.
-const char *hash_iter_ver_actual(const hash_iter_t *iter);
+const char *hash_iter_ver_actual(const hash_iter_t *iter){
+    campo_t* campo_actual = lista_iter_ver_actual(iter->iterador_pos_arreglo);
+    return campo_actual->clave;
+}
 
 // Comprueba si terminó la iteración
-bool hash_iter_al_final(const hash_iter_t *iter);
+bool hash_iter_al_final(const hash_iter_t *iter){
+    return iter->al_final;
+}
 
 // Destruye iterador
-void hash_iter_destruir(hash_iter_t *iter);
+void hash_iter_destruir(hash_iter_t *iter){
+    free(iter);
+}

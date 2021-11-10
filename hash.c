@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "lista.h"
+#include "hash.h"
 #define CAP_INICIAL 50
 #define FUN_HASHING djb2
 
@@ -37,7 +38,7 @@ typedef struct campo{
 typedef void (*hash_destruir_dato_t)(void *); // Sigo sin entender bien esto. Escribo algo acá?
 // O simplemente lo estamos declarando? Porq qué en cola no lo declaramos y en este tda si
 
-campo_t* crear_campo(char* clave, void* dato){
+campo_t* campo_crear(char* clave, void* dato){
     campo_t* campo = malloc(sizeof(campo_t));
     if (campo == NULL) return NULL;
 
@@ -47,7 +48,7 @@ campo_t* crear_campo(char* clave, void* dato){
     return campo;
 }
 
-void destruir_campo(campo_t* campo){ // PUEDE QUE ACÁ FALTE ALGO DE DESTRUIR EL CONTENIDO DEL CAMPO
+void campo_destruir(campo_t* campo){ // PUEDE QUE ACÁ FALTE ALGO DE DESTRUIR EL CONTENIDO DEL CAMPO
     free(campo);
 }
 
@@ -57,7 +58,7 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     hash_t* hash = malloc(sizeof(hash_t));
     if (hash == NULL) return NULL;
 
-    void** arreglo_dinamico = malloc(sizeof(lista_t) * CAP_INICIAL);
+    void** arreglo_dinamico = malloc(sizeof(lista_t*) * CAP_INICIAL);
     if (arreglo_dinamico == NULL) return NULL;
 
     hash->arreglo = arreglo_dinamico;
@@ -66,7 +67,7 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     hash->funcion_destruir_dato = destruir_dato;
 
     for (int i = 0; i > CAP_INICIAL; i++){
-        hash->arreglo[i] = lista_crear(); // REVISAR, LISTA
+        hash->arreglo[i] = lista_crear(); 
     }
     return hash;
 }
@@ -78,6 +79,9 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
  */
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     int pos_elem_guardado = FUN_HASHING(clave) % hash->capacidad;
+    campo_t* campo_agregado = campo_crear(clave, dato);
+
+    lista_insertar_ultimo(hash->arreglo[pos_elem_guardado], campo_agregado);
 }
 
 /* Borra un elemento del hash y devuelve el dato asociado.  Devuelve
@@ -86,7 +90,15 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
  * Post: El elemento fue borrado de la estructura y se lo devolvió,
  * en el caso de que estuviera guardado.
  */
-void *hash_borrar(hash_t *hash, const char *clave);
+void *hash_borrar(hash_t *hash, const char *clave){
+    int posicion = FUN_HASHING(clave) % hash->capacidad;
+    lista_iter_t* iterador = lista_iter_crear(hash->arreglo[posicion]);
+    campo_t* campo;
+    while(!lista_iter_al_final(iterador)) {
+        campo = lista_iter_ver_actual(iterador);
+        //if () // SEGUIR
+    }
+}
 
 /* Obtiene el valor de un elemento del hash, si la clave no se encuentra
  * devuelve NULL.
@@ -102,8 +114,9 @@ bool hash_pertenece(const hash_t *hash, const char *clave);
 /* Devuelve la cantidad de elementos del hash.
  * Pre: La estructura hash fue inicializada
  */
-size_t hash_cantidad(const hash_t *hash);
-
+size_t hash_cantidad(const hash_t *hash){
+    return hash->carga;
+}
 /* Destruye la estructura liberando la memoria pedida y llamando a la función
  * destruir para cada par (clave, dato).
  * Pre: La estructura hash fue inicializada

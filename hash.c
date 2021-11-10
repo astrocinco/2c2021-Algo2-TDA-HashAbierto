@@ -72,16 +72,90 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     return hash;
 }
 
+// Funcion auxiliar
+// Retorna un iterador posicionado en la posicion de la lista de la clave buscada
+// El iterador queda al final si no se encuentra la clave
+lista_iter_t* aux_posicionar_iterador(hash_t* hash, const char* clave){
+    int posicion = FUN_HASHING(clave) % hash->capacidad;
+    lista_iter_t* iterador = lista_iter_crear(hash->arreglo[posicion]);
+    campo_t* campo;
+
+    while(!lista_iter_al_final(iterador)){
+        campo = lista_iter_ver_actual(iterador);
+        if (strcmp(campo->clave, clave) == 0){
+            return iterador;
+        }
+        lista_iter_avanzar(iterador);
+    }
+    return iterador;
+}
+
+void hash_redimencionar(hash_t* hash, int nueva_capacidad){
+    // Crear nuevo arreglo
+    // Pasar todos elementos a nueva pos (considerando fun hashing % nueva_cap)
+    // Asignar nuevo arreglo como actual
+    // Eliminar viejo arreglo
+}
+
+/* Determina si clave pertenece o no al hash.
+ * Pre: La estructura hash fue inicializada
+ */
+bool hash_pertenece(const hash_t *hash, const char *clave){
+    lista_iter_t* iterador = aux_posicionar_iterador(hash, clave);
+    bool resultado = !lista_iter_al_final(iterador);
+    lista_iter_destruir(iterador);
+    return resultado;
+    /*
+    int posicion = FUN_HASHING(clave) % hash->capacidad;
+    lista_iter_t* iterador =  lista_iter_crear(hash->arreglo[posicion]);
+    campo_t* campo_lista_pos;
+
+    while(!lista_iter_al_final(iterador)) {
+        campo_lista_pos = lista_iter_ver_actual(iterador);
+        if (strcmp(campo_lista_pos->clave, clave) == 0) {
+            lista_iter_destruir(iterador);
+            return true;
+        }
+        lista_iter_avanzar(iterador);
+    }
+
+    lista_iter_destruir(iterador);
+    return false;
+    */
+}
+
 /* Guarda un elemento en el hash, si la clave ya se encuentra en la
  * estructura, la reemplaza. De no poder guardarlo devuelve false.
  * Pre: La estructura hash fue inicializada
  * Post: Se almacenó el par (clave, dato)
  */
-bool hash_guardar(hash_t *hash, const char *clave, void *dato){
-    int pos_elem_guardado = FUN_HASHING(clave) % hash->capacidad;
-    campo_t* campo_agregado = campo_crear(clave, dato);
+bool hash_guardar(hash_t *hash, const char *clave, void *dato){ 
+    if (hash_pertenece(hash, clave)) hash_borrar(hash, clave);
 
-    lista_insertar_ultimo(hash->arreglo[pos_elem_guardado], campo_agregado);
+    int posicion = FUN_HASHING(clave) % hash->capacidad;
+    campo_t* campo_agregado = campo_crear(clave, dato);
+    lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
+}
+
+/* Obtiene el valor de un elemento del hash, si la clave no se encuentra
+ * devuelve NULL.
+ * Pre: La estructura hash fue inicializada
+ */
+void *hash_obtener(const hash_t *hash, const char *clave){
+    if (!hash_pertenece(hash, clave)) return NULL;
+
+    lista_iter_t* iterador = aux_posicionar_iterador(hash, clave);
+    campo_t* campo = lista_iter_ver_actual(iterador);
+    void* dato = campo->dato;
+    lista_iter_destruir(iterador);
+    return dato;
+}
+
+/* Devuelve la cantidad de elementos del hash.
+ * Pre: La estructura hash fue inicializada
+ */
+size_t hash_cantidad(const hash_t *hash){
+    return hash->carga;
 }
 
 /* Borra un elemento del hash y devuelve el dato asociado.  Devuelve
@@ -91,38 +165,22 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
  * en el caso de que estuviera guardado.
  */
 void *hash_borrar(hash_t *hash, const char *clave){
-    int posicion = FUN_HASHING(clave) % hash->capacidad;
-    lista_iter_t* iterador = lista_iter_crear(hash->arreglo[posicion]);
-    campo_t* campo;
-    while(!lista_iter_al_final(iterador)) {
-        campo = lista_iter_ver_actual(iterador);
-        //if () // SEGUIR
-    }
-}
+    if (!hash_pertenece(hash, clave)) return NULL;
 
-/* Obtiene el valor de un elemento del hash, si la clave no se encuentra
- * devuelve NULL.
- * Pre: La estructura hash fue inicializada
- */
-void *hash_obtener(const hash_t *hash, const char *clave);
-
-/* Determina si clave pertenece o no al hash.
- * Pre: La estructura hash fue inicializada
- */
-bool hash_pertenece(const hash_t *hash, const char *clave);
-
-/* Devuelve la cantidad de elementos del hash.
- * Pre: La estructura hash fue inicializada
- */
-size_t hash_cantidad(const hash_t *hash){
-    return hash->carga;
+    void* dato = hash_obtener(hash, clave);
+    lista_iter_t* iterador = aux_posicionar_iterador(hash, clave);
+    lista_iter_destruir(iterador);
+    return dato;
 }
 /* Destruye la estructura liberando la memoria pedida y llamando a la función
  * destruir para cada par (clave, dato).
  * Pre: La estructura hash fue inicializada
  * Post: La estructura hash fue destruida
  */
-void hash_destruir(hash_t *hash);
+void hash_destruir(hash_t *hash){
+    // Ir elemento por elemento borrando su dato y su campo
+    // Borrar hash
+}
 
 /* Iterador del hash */
 

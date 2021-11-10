@@ -39,6 +39,8 @@ typedef struct campo{
     void* dato;
 } campo_t;
 
+typedef bool (*visitar)(void *dato, void*extra);
+
 campo_t* campo_crear(char* clave, void* dato){
     campo_t* campo = malloc(sizeof(campo_t));
     if (campo == NULL) return NULL;
@@ -89,6 +91,21 @@ lista_iter_t* aux_posicionar_iterador(hash_t* hash, const char* clave){
         lista_iter_avanzar(iterador);
     }
     return iterador;
+}
+
+//Funcion auxiliar
+// Iterador interno. Recibe una función y un parametro para esta
+void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
+    if (hash_cantidad == 0) return;
+    bool al_final = false;
+    campo_t* campo_actual;
+    int pos_arreglo = 0;
+    lista_iter_t* iterador_lista;
+    // HACER
+
+    while(!al_final){
+        while(lista_iter_al_final){};
+    }
 }
 
 void hash_redimensionar(hash_t* hash, int nueva_capacidad){ // HACER ----------

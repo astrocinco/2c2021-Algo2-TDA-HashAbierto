@@ -182,9 +182,9 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     char* clave_cop = malloc(sizeof(char) * LARGO_MAX_CADENA);
     strcpy(clave_cop, clave);
     if (hash_pertenece(hash, clave_cop)) {
-        //printf("185 Guardar ya pertenece\n");
+        printf("185 Guardar ya pertenece\n");
         void* dato_reemplazado = hash_borrar(hash, clave_cop);
-        //printf("187\n");
+        printf("187 Dato reemplazado: %s\n", clave_cop);
         if (hash->funcion_destruir_dato != NULL) {
             hash_destruir_dato_t funcion_dest = hash->funcion_destruir_dato;
             funcion_dest(dato_reemplazado);
@@ -303,5 +303,6 @@ bool hash_iter_al_final(const hash_iter_t *iter){
 
 // Destruye iterador
 void hash_iter_destruir(hash_iter_t *iter){
+    free(iter->iterador_pos_arreglo);
     free(iter);
 }

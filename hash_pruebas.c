@@ -99,6 +99,7 @@ static void prueba_hash_reemplazar()
     print_test("Prueba hash insertar clave1 con otro valor", hash_guardar(hash, clave1, valor1b));
     print_test("Prueba hash obtener clave1 es valor1b", hash_obtener(hash, clave1) == valor1b);
     print_test("Prueba hash obtener clave1 es valor1b", hash_obtener(hash, clave1) == valor1b);
+    printf("Pruebas 102: Sale %s - Debería %s\n", hash_obtener(hash, clave1), valor1b);
     print_test("Prueba hash insertar clave2 con otro valor", hash_guardar(hash, clave2, valor2b));
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
@@ -404,14 +405,14 @@ static void prueba_hash_iterar_volumen(size_t largo)
 void pruebas_hash_catedra()
 {
     /* Ejecuta todas las pruebas unitarias. */
-    /*
+    //*
     prueba_crear_hash_vacio();
     prueba_iterar_hash_vacio();
     prueba_hash_insertar();
     //*
-    */
-    prueba_hash_reemplazar();
-    prueba_hash_reemplazar_con_destruir();
+    //*/
+    //prueba_hash_reemplazar();
+    //prueba_hash_reemplazar_con_destruir();
     //prueba_hash_borrar();
     //prueba_hash_clave_vacia();
     //prueba_hash_valor_null();

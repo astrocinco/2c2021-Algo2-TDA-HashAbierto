@@ -96,15 +96,27 @@ lista_iter_t* aux_posicionar_iterador(hash_t* hash, const char* clave){
 //Funcion auxiliar
 // Iterador interno. Recibe una función y un parametro para esta
 void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
-    if (hash_cantidad == 0) return;
-    bool al_final = false;
-    campo_t* campo_actual;
-    int pos_arreglo = 0;
-    lista_iter_t* iterador_lista;
-    // HACER
+    if (hash->carga == 0) return;
 
-    while(!al_final){
-        while(lista_iter_al_final){};
+    int posicion_arreglo = 0;
+    lista_t* lista;
+    lista_iter_t* iterador_lista;
+    campo_t* campo;
+
+    while(posicion_arreglo < hash->capacidad){
+        lista = hash->arreglo[posicion_arreglo];
+        if (lista_largo(lista) == 0) {
+            posicion_arreglo++;
+            continue;
+        }
+        iterador_lista = lista_iter_crear(lista);
+        while(!lista_iter_al_final(iterador_lista)){
+            campo = lista_iter_ver_actual(iterador_lista);
+            funcion(campo->dato, extra);
+            lista_iter_avanzar(iterador_lista);
+        }
+        campo_destruir(campo);
+        
     }
 }
 

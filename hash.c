@@ -130,7 +130,7 @@ void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
 
 bool hash_redimensionar(hash_t* hash, int nueva_capacidad){ 
     printf("Linea 132\n");
-    printf("133 Carga: %d - Capacidad: %d", hash->carga, hash->capacidad);
+    printf("133 Carga: %ld - Capacidad: %ld", hash->carga, hash->capacidad);
     void** nuevo_arreglo_dinamico = malloc(sizeof(lista_t*) * CAP_INICIAL);
     if (nuevo_arreglo_dinamico == NULL) return false;
     // Crear nuevo arreglo ^
@@ -182,15 +182,22 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     char* clave_cop = malloc(sizeof(char) * LARGO_MAX_CADENA);
     strcpy(clave_cop, clave);
     if (hash_pertenece(hash, clave_cop)) {
+        //printf("185 Guardar ya pertenece\n");
         void* dato_reemplazado = hash_borrar(hash, clave_cop);
-        hash->funcion_destruir_dato(dato_reemplazado); // REVISAR
+        //printf("187\n");
+        if (hash->funcion_destruir_dato != NULL) {
+            hash_destruir_dato_t funcion_dest = hash->funcion_destruir_dato;
+            funcion_dest(dato_reemplazado);
+            //hash->funcion_destruir_dato(dato_reemplazado); // ACORTAR A UN LINEA. ALGO ASÍ    
+        }
+        //printf("189\n");
     } 
 
     long unsigned int posicion = djb2(clave_cop) % hash->capacidad;
     campo_t* campo_agregado = campo_crear(clave_cop, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
     hash->carga++;
-    printf("193 Carga: %d - Capacidad: %d\n", hash->carga, hash->capacidad);
+    printf("193 Carga: %ld - Capacidad: %ld\n", hash->carga, hash->capacidad);
     if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX) hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
     return true;
 }

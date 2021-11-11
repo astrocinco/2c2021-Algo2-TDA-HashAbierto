@@ -87,7 +87,7 @@ static void prueba_hash_reemplazar()
     char *clave2 = "gato", *valor2a = "miau", *valor2b = "meaow";
 
     /* Inserta 2 valores y luego los reemplaza */
-    printf("Prueba linea 90\n");
+    printf("--------------Prueba linea 90\n");
     print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1a));
     print_test("Prueba hash obtener clave1 es valor1a", hash_obtener(hash, clave1) == valor1a);
     print_test("Prueba hash obtener clave1 es valor1a", hash_obtener(hash, clave1) == valor1a);
@@ -109,6 +109,7 @@ static void prueba_hash_reemplazar()
 
 static void prueba_hash_reemplazar_con_destruir()
 {
+    printf("--------------Prueba linea 112\n");
     hash_t* hash = hash_crear(free);
 
     char *clave1 = "perro", *valor1a, *valor1b;
@@ -127,7 +128,7 @@ static void prueba_hash_reemplazar_con_destruir()
     print_test("Prueba hash insertar clave2", hash_guardar(hash, clave2, valor2a));
     print_test("Prueba hash obtener clave2 es valor2a", hash_obtener(hash, clave2) == valor2a);
     print_test("Prueba hash obtener clave2 es valor2a", hash_obtener(hash, clave2) == valor2a);
-    print_test("Prueba hash la cantidad de elementos es 2", hash_cantidad(hash) == 2);
+    print_test("Prueba hash la cantidad de elementos es 2 -- 131", hash_cantidad(hash) == 2);
 
     print_test("Prueba hash insertar clave1 con otro valor", hash_guardar(hash, clave1, valor1b));
     print_test("Prueba hash obtener clave1 es valor1b", hash_obtener(hash, clave1) == valor1b);
@@ -135,7 +136,7 @@ static void prueba_hash_reemplazar_con_destruir()
     print_test("Prueba hash insertar clave2 con otro valor", hash_guardar(hash, clave2, valor2b));
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
-    print_test("Prueba hash la cantidad de elementos es 2", hash_cantidad(hash) == 2);
+    print_test("Prueba hash la cantidad de elementos es 2 -- 139", hash_cantidad(hash) == 2);
 
     /* Se destruye el hash (se debe liberar lo que quedó dentro) */
     hash_destruir(hash);
@@ -403,18 +404,20 @@ static void prueba_hash_iterar_volumen(size_t largo)
 void pruebas_hash_catedra()
 {
     /* Ejecuta todas las pruebas unitarias. */
+    /*
     prueba_crear_hash_vacio();
     prueba_iterar_hash_vacio();
     prueba_hash_insertar();
     //*
+    */
     prueba_hash_reemplazar();
     prueba_hash_reemplazar_con_destruir();
-    prueba_hash_borrar();
-    prueba_hash_clave_vacia();
-    prueba_hash_valor_null();
-    prueba_hash_volumen(5000, true);
-    prueba_hash_iterar();
-    prueba_hash_iterar_volumen(5000);
+    //prueba_hash_borrar();
+    //prueba_hash_clave_vacia();
+    //prueba_hash_valor_null();
+    //prueba_hash_volumen(5000, true);
+    //prueba_hash_iterar();
+    //prueba_hash_iterar_volumen(5000);
     //*/
 }
 

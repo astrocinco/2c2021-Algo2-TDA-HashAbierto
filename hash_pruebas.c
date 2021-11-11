@@ -43,6 +43,27 @@ static void prueba_iterar_hash_vacio()
     hash_iter_destruir(iter);
     hash_destruir(hash);
 }
+// ____________________________
+static void prueba_hash_insertar_casero()
+{
+    hash_t* hash = hash_crear(NULL);
+
+    char *clave1 = "perro", *valor1 = "guau";
+    char *clave2 = "gato", *valor2 = "miau";
+    char *clave3 = "vaca", *valor3 = "mu";
+
+    printf("Prueba linea 55\n");
+    /* Inserta 1 valor y luego lo borra */
+    print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1));
+    print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
+    print_test("Prueba hash obtener clave1 es valor1", hash_obtener(hash, clave1) == valor1);
+    print_test("Prueba hash obtener clave1 es valor1", hash_obtener(hash, clave1) == valor1);
+    print_test("Prueba hash pertenece clave1, es true", hash_pertenece(hash, clave1));
+    print_test("Prueba hash borrar clave1, es valor1", hash_borrar(hash, clave1) == valor1);
+    print_test("Prueba hash la cantidad de elementos es 0", hash_cantidad(hash) == 0);
+    printf("78\n");
+    hash_destruir(hash);
+}
 
 static void prueba_hash_insertar()
 {
@@ -75,8 +96,9 @@ static void prueba_hash_insertar()
     print_test("Prueba hash obtener clave3 es valor3", hash_obtener(hash, clave3) == valor3);
     print_test("Prueba hash obtener clave3 es valor3", hash_obtener(hash, clave3) == valor3);
     print_test("Prueba hash pertenece clave3, es true", hash_pertenece(hash, clave3));
-
+    printf("78\n");
     hash_destruir(hash);
+    printf("101\n");
 }
 
 static void prueba_hash_reemplazar()
@@ -406,8 +428,9 @@ void pruebas_hash_catedra()
 {
     /* Ejecuta todas las pruebas unitarias. */
     //*
-    prueba_crear_hash_vacio();
-    prueba_iterar_hash_vacio();
+    //prueba_crear_hash_vacio();
+    //prueba_iterar_hash_vacio();
+    //prueba_hash_insertar_casero();
     prueba_hash_insertar();
     //*
     //*/

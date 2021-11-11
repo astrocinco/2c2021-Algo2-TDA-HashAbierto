@@ -1,19 +1,22 @@
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdio.h>
 #include "lista.h"
 #include "hash.h"
 #define CAP_INICIAL 50
 #define FACTOR_NVA_CAP 2
 #define FACTOR_CARGA_MAX 2.5
 #define FACTOR_CARGA_MIN 0.2
-#define FUN_HASHING djb2
+#define LARGO_MAX_CADENA 50
+//#define FUN_HASHING djb2 // Recuperar
 
 // https://stackoverflow.com/questions/7666509/hash-function-for-string
-unsigned long djb2(unsigned char *str) {
+unsigned long djb2(const char *str) {
     unsigned long hash = 5381;
     int c;
 
-    while (c = *str++)
+    while ((c = *str++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;
@@ -22,8 +25,8 @@ unsigned long djb2(unsigned char *str) {
 // Los structs deben llamarse "hash" y "hash_iter".
 typedef struct hash{
     void** arreglo;
-    int capacidad;
-    int carga;
+    long unsigned int capacidad;
+    long unsigned int carga;
     hash_destruir_dato_t funcion_destruir_dato;
 } hash_t;
 
@@ -51,8 +54,14 @@ campo_t* campo_crear(char* clave, void* dato){
     return campo;
 }
 
-void campo_destruir(campo_t* campo){ 
+void campo_destruir_clave(campo_t* campo){
+    free(campo->clave);
     free(campo);
+}
+
+void campo_destruir_total(campo_t* campo, void (*destruir_dato)(void *)){ 
+    destruir_dato(campo->dato);
+    campo_destruir_clave(campo);
 }
 
 /* Crea el hash
@@ -69,7 +78,7 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     hash->carga = 0;
     hash->funcion_destruir_dato = destruir_dato;
 
-    for (int i = 0; i > CAP_INICIAL; i++){
+    for (int i = 0; i < CAP_INICIAL; i++){
         hash->arreglo[i] = lista_crear(); 
     }
     return hash;
@@ -78,11 +87,12 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
 // Funcion auxiliar
 // Retorna un iterador posicionado en la posicion de la lista de la clave buscada
 // El iterador queda al final si no se encuentra la clave
-lista_iter_t* aux_posicionar_iterador(hash_t* hash, const char* clave){
-    int posicion = FUN_HASHING(clave) % hash->capacidad;
+lista_iter_t* aux_posicionar_iterador(const hash_t* hash, const char* clave){
+    //printf("83\n");
+    long unsigned int posicion = djb2(clave) % hash->capacidad;
+    //printf("86: %d\n", posicion);
     lista_iter_t* iterador = lista_iter_crear(hash->arreglo[posicion]);
     campo_t* campo;
-
     while(!lista_iter_al_final(iterador)){
         campo = lista_iter_ver_actual(iterador);
         if (strcmp(campo->clave, clave) == 0){
@@ -98,7 +108,7 @@ lista_iter_t* aux_posicionar_iterador(hash_t* hash, const char* clave){
 void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
     if (hash->carga == 0) return;
 
-    int posicion_arreglo = 0;
+    long unsigned int posicion_arreglo = 0;
     lista_t* lista;
     lista_iter_t* iterador_lista;
     campo_t* campo;
@@ -115,21 +125,42 @@ void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
             funcion(campo->dato, extra);
             lista_iter_avanzar(iterador_lista);
         }
-        campo_destruir(campo);
-        
     }
 }
 
-void hash_redimensionar(hash_t* hash, int nueva_capacidad){ // HACER ----------
+bool hash_redimensionar(hash_t* hash, int nueva_capacidad){ 
+    printf("Linea 132\n");
+    printf("133 Carga: %d - Capacidad: %d", hash->carga, hash->capacidad);
     void** nuevo_arreglo_dinamico = malloc(sizeof(lista_t*) * CAP_INICIAL);
-    if (nuevo_arreglo_dinamico == NULL) return NULL;
+    if (nuevo_arreglo_dinamico == NULL) return false;
     // Crear nuevo arreglo ^
-    // -ACÁ VA ITERADOR INTERNO
+
+    long unsigned int posicion_arreglo = 0;
+    lista_t* lista;
+    lista_iter_t* iterador_lista;
+    campo_t* campo;
+
+    while(posicion_arreglo < hash->capacidad){
+        lista = hash->arreglo[posicion_arreglo];
+        if (lista_largo(lista) == 0) {
+            posicion_arreglo++;
+            continue;
+        }
+        iterador_lista = lista_iter_crear(lista);
+        while(!lista_iter_al_final(iterador_lista)){
+            campo = lista_iter_ver_actual(iterador_lista);
+            long unsigned int posicion_nuevo = djb2(campo->clave) % hash->capacidad;
+            printf("%zu\n", posicion_nuevo);
+            lista_insertar_ultimo(nuevo_arreglo_dinamico[posicion_nuevo], campo);
+            lista_iter_avanzar(iterador_lista);
+        }
+    }
     // Pasar todos elementos a nueva pos ^(considerando fun hashing % nueva_cap)
     free(hash->arreglo);
     // Eliminar viejo arreglo
     hash->arreglo = nuevo_arreglo_dinamico;
     // Asignar nuevo arreglo como actual ^
+    return true;
 }
 
 /* Determina si clave pertenece o no al hash.
@@ -148,16 +179,20 @@ bool hash_pertenece(const hash_t *hash, const char *clave){
  * Post: Se almacenó el par (clave, dato)
  */
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){ 
-    if (hash_pertenece(hash, clave)) {
-        void* dato_reemplazado = hash_borrar(hash, clave);
+    char* clave_cop = malloc(sizeof(char) * LARGO_MAX_CADENA);
+    strcpy(clave_cop, clave);
+    if (hash_pertenece(hash, clave_cop)) {
+        void* dato_reemplazado = hash_borrar(hash, clave_cop);
         hash->funcion_destruir_dato(dato_reemplazado); // REVISAR
     } 
 
-    int posicion = FUN_HASHING(clave) % hash->capacidad;
-    campo_t* campo_agregado = campo_crear(clave, dato);
+    long unsigned int posicion = djb2(clave_cop) % hash->capacidad;
+    campo_t* campo_agregado = campo_crear(clave_cop, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
-
-    if (hash->capacidad / hash->carga > FACTOR_CARGA_MAX) hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
+    hash->carga++;
+    printf("193 Carga: %d - Capacidad: %d\n", hash->carga, hash->capacidad);
+    if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX) hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
+    return true;
 }
 
 /* Obtiene el valor de un elemento del hash, si la clave no se encuentra
@@ -192,9 +227,12 @@ void *hash_borrar(hash_t *hash, const char *clave){
 
     void* dato = hash_obtener(hash, clave);
     lista_iter_t* iterador = aux_posicionar_iterador(hash, clave);
+    campo_t* campo = lista_iter_ver_actual(iterador);
+    campo_destruir_clave(campo);
     lista_iter_destruir(iterador);
+    hash->carga--;
 
-    if (hash->capacidad / hash->carga < FACTOR_CARGA_MIN) hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP);
+    if (hash->carga / hash->capacidad < FACTOR_CARGA_MIN && hash->capacidad > CAP_INICIAL) hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP);
     return dato;
 }
 
@@ -203,15 +241,14 @@ void *hash_borrar(hash_t *hash, const char *clave){
  * Pre: La estructura hash fue inicializada
  * Post: La estructura hash fue destruida
  */
-void hash_destruir(hash_t *hash){ // HACER ------
-    // -- ITERADOR INTERNO
-        //hash->funcion_destruir_dato(-----);
-        //campo_destruir(-----);
-        //lista_destruir(-----);
-    // Ir elemento por elemento borrando su dato y su campo
+void hash_destruir(hash_t *hash){ 
+    //hash_iterador_interno(hash, hash->funcion_destruir_dato, NULL);
+    for (int i = 0; i < hash->capacidad; i++){
+
+        lista_destruir(hash->arreglo[i], hash->funcion_destruir_dato);
+    }
     free(hash->arreglo);
     free(hash);
-    // Borrar hash ^
 }
 
 /* Iterador del hash */
@@ -234,7 +271,7 @@ bool hash_iter_avanzar(hash_iter_t *iter){ // REVISAR
 
     if (lista_iter_al_final(iter->iterador_pos_arreglo)){
         iter->pos_en_arreglo++;
-        while(lista_esta_vacia(iter->pos_en_arreglo)){
+        while(lista_esta_vacia(iter->hash->arreglo[iter->pos_en_arreglo])){
             iter->pos_en_arreglo++;
         }
         free(iter->iterador_pos_arreglo);
@@ -247,6 +284,7 @@ bool hash_iter_avanzar(hash_iter_t *iter){ // REVISAR
 
 // Devuelve clave actual, esa clave no se puede modificar ni liberar.
 const char *hash_iter_ver_actual(const hash_iter_t *iter){
+    if (iter->al_final) return NULL;
     campo_t* campo_actual = lista_iter_ver_actual(iter->iterador_pos_arreglo);
     return campo_actual->clave;
 }

@@ -37,6 +37,7 @@ nodo_t *crear_nodo(void* dato){
 
 // PRIMITIVAS LISTA
 lista_t *lista_crear(void){
+	//printf("Lista 40\n");
 	lista_t *lista = malloc(sizeof(lista_t));
 	if (!lista){
 		return NULL;
@@ -125,6 +126,7 @@ void lista_destruir(lista_t *lista,destruir_dato destruir){
 
 // PRIMITIVAS ITERADOR
 lista_iter_t *lista_iter_crear(lista_t *lista){
+	//printf("Lista 129\n");
 	lista_iter_t *iter = malloc(sizeof(lista_iter_t));
 	if (iter == NULL){
 		return NULL;

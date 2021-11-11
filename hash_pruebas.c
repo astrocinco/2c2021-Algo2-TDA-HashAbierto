@@ -52,6 +52,7 @@ static void prueba_hash_insertar()
     char *clave2 = "gato", *valor2 = "miau";
     char *clave3 = "vaca", *valor3 = "mu";
 
+    printf("Prueba linea 55\n");
     /* Inserta 1 valor y luego lo borra */
     print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1));
     print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
@@ -61,6 +62,7 @@ static void prueba_hash_insertar()
     print_test("Prueba hash borrar clave1, es valor1", hash_borrar(hash, clave1) == valor1);
     print_test("Prueba hash la cantidad de elementos es 0", hash_cantidad(hash) == 0);
 
+    printf("Prueba linea 65\n");
     /* Inserta otros 2 valores y no los borra (se destruyen con el hash) */
     print_test("Prueba hash insertar clave2", hash_guardar(hash, clave2, valor2));
     print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
@@ -85,6 +87,7 @@ static void prueba_hash_reemplazar()
     char *clave2 = "gato", *valor2a = "miau", *valor2b = "meaow";
 
     /* Inserta 2 valores y luego los reemplaza */
+    printf("Prueba linea 90\n");
     print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1a));
     print_test("Prueba hash obtener clave1 es valor1a", hash_obtener(hash, clave1) == valor1a);
     print_test("Prueba hash obtener clave1 es valor1a", hash_obtener(hash, clave1) == valor1a);
@@ -403,6 +406,7 @@ void pruebas_hash_catedra()
     prueba_crear_hash_vacio();
     prueba_iterar_hash_vacio();
     prueba_hash_insertar();
+    //*
     prueba_hash_reemplazar();
     prueba_hash_reemplazar_con_destruir();
     prueba_hash_borrar();
@@ -411,6 +415,7 @@ void pruebas_hash_catedra()
     prueba_hash_volumen(5000, true);
     prueba_hash_iterar();
     prueba_hash_iterar_volumen(5000);
+    //*/
 }
 
 void pruebas_volumen_catedra(size_t largo)

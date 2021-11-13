@@ -27,7 +27,8 @@ typedef struct hash{
     void** arreglo;
     long unsigned int capacidad;
     long unsigned int carga;
-    hash_destruir_dato_t funcion_destruir_dato;
+    hash_destruir_dato_t funcion_destruir_dato; // Tal vez error en esta funcion por estar pasando directamente y no pasar &
+    // O por no hacer * para asignarlo como tipo de dato hash_destruir_dato_t en un primitiva
 } hash_t;
 
 typedef struct hash_iter{
@@ -340,3 +341,5 @@ void hash_iter_destruir(hash_iter_t *iter){
     free(iter->iterador_pos_arreglo);
     free(iter);
 }
+
+// 13/11

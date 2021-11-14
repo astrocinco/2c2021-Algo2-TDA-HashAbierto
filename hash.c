@@ -63,6 +63,7 @@ campo_t* campo_crear(const char* clave, void* dato){
 void campo_destruir_clave(campo_t* campo){
     printf("Campo siendo destruido: %s\n", campo->clave);
     free(campo->clave);
+    free(campo);
 }
 */
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
@@ -131,7 +132,7 @@ void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
 }
 
 bool hash_redimensionar(hash_t* hash, long unsigned int nueva_capacidad){ 
-    printf("Linea 132\n");
+    printf("Linea 132 --- Redimencionó\n");
     printf("133 Carga: %ld - Capacidad: %ld", hash->carga, hash->capacidad);
     void** nuevo_arreglo_dinamico = malloc(sizeof(lista_t*) * CAP_INICIAL);
     if (nuevo_arreglo_dinamico == NULL) return false;
@@ -187,6 +188,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     } 
 
     long unsigned int posicion = djb2(clave) % hash->capacidad;
+    printf("C190 %lu", posicion);
     campo_t* campo_agregado = campo_crear(clave, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
     printf("Dato de campo nuevo: %s\n", (char*)campo_agregado->dato);
@@ -218,15 +220,28 @@ void des_campo(void* campo){
     free(dato);
 }
 
+campo_t* encontrar_campo(hash_t* hash, const char* clave){
+    long unsigned int posicion = djb2(clave) % hash->capacidad;
+    campo_t* campo;
+    lista_t* lista = hash->arreglo[posicion];
+    lista_iter_t* iterador = lista_iter_crear(lista);
+    while(!lista_iter_al_final(iterador)){
+        campo = lista_iter_ver_actual(iterador);
+        if (strcmp(campo->clave, clave) == 0){
+            return campo;
+        }
+        lista_iter_avanzar(iterador);
+    }
+    lista_iter_destruir(iterador);
+    return NULL;
+}
+
 void *hash_borrar(hash_t *hash, const char *clave){
     if (!hash_pertenece(hash, clave)) return NULL;
 
     void* dato = hash_obtener(hash, clave);
-    lista_iter_t* iterador = aux_posicionar_iterador(hash, clave);
-    campo_t* campo = lista_iter_ver_actual(iterador);
-    //campo_destruir(campo);
+    campo_t* campo = encontrar_campo(hash, clave);
     des_campo(campo);
-    lista_iter_destruir(iterador);
     hash->carga--;
 
     if (hash->carga / hash->capacidad < FACTOR_CARGA_MIN && hash->capacidad > CAP_INICIAL) hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP);
@@ -294,22 +309,28 @@ void destruir_campos(hash_t* hash){
 void destruir_listas(hash_t* hash){
     for (size_t i = 0; i < hash->capacidad; i++){
         lista_t* lista= hash->arreglo[i];
+        printf("C297\n");
         if (!lista_esta_vacia(lista)){
+            printf("C299 %lu\n", i);
             lista_destruir(hash->arreglo[i], des_campo);
         }else{
+            printf("C302 %lu\n", i);
             lista_destruir(hash->arreglo[i],NULL);
         }
     }
 }
 
 void hash_destruir(hash_t *hash){
+    printf("C306\n");
     /*
     destruir_campos(hash);
     */
     //destruir(campo->dato); // Hacer funcion para destruir datos con funcion hash->destruir_dato
 
     destruir_listas(hash);
+    printf("C313\n");
     free(hash->arreglo);
+    printf("C315\n");
     free(hash);
 }
 

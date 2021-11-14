@@ -4,11 +4,11 @@
 #include <stdio.h>
 #include "lista.h"
 #include "hash.h"
-#define CAP_INICIAL 50
-#define FACTOR_NVA_CAP 2
+#define CAP_INICIAL 50ul
+#define FACTOR_NVA_CAP 2ul
 #define FACTOR_CARGA_MAX 2.5
 #define FACTOR_CARGA_MIN 0.2
-#define LARGO_MAX_CLAVES 40
+#define LARGO_MAX_CLAVES 40ul
 //#define FUN_HASHING djb2 // Recuperar
 
 // https://stackoverflow.com/questions/7666509/hash-function-for-string
@@ -32,7 +32,7 @@ typedef struct hash{
 } hash_t;
 
 typedef struct hash_iter{
-    hash_t* hash;
+    const hash_t* hash;
     int pos_en_arreglo;
     lista_iter_t* iterador_pos_arreglo;
     bool al_final;
@@ -45,7 +45,7 @@ typedef struct campo{
 
 typedef bool (*visitar)(void *dato, void*extra);
 
-campo_t* campo_crear(char* clave, void* dato){
+campo_t* campo_crear(const char* clave, void* dato){
     campo_t* campo = malloc(sizeof(campo_t));
     if (campo == NULL) return NULL;
 
@@ -57,6 +57,7 @@ campo_t* campo_crear(char* clave, void* dato){
 }
 
 void campo_destruir_clave(campo_t* campo){
+    printf("Campo siendo destruido: %s\n", campo->clave);
     free(campo->clave);
     free(campo);
 }
@@ -126,7 +127,7 @@ void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
     }
 }
 
-bool hash_redimensionar(hash_t* hash, int nueva_capacidad){ 
+bool hash_redimensionar(hash_t* hash, long unsigned int nueva_capacidad){ 
     printf("Linea 132\n");
     printf("133 Carga: %ld - Capacidad: %ld", hash->carga, hash->capacidad);
     void** nuevo_arreglo_dinamico = malloc(sizeof(lista_t*) * CAP_INICIAL);
@@ -172,9 +173,10 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     if (hash_pertenece(hash, clave)) {
         printf("185 Guardar ya pertenece\n");
         void* dato_reemplazado = hash_borrar(hash, clave);
-        printf("187 Dato reemplazado: %s\n", clave);
+        printf("187 Dato reemplazado: %s\n", (char*)dato_reemplazado);
         if (hash->funcion_destruir_dato != NULL) {
             hash_destruir_dato_t funcion_dest = hash->funcion_destruir_dato;
+            printf("--178-- Debugging: %s\n", (char*)dato_reemplazado);
             funcion_dest(dato_reemplazado);
             //hash->funcion_destruir_dato(dato_reemplazado); // ACORTAR A UN LINEA. ALGO ASÍ    
         }
@@ -184,9 +186,12 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     long unsigned int posicion = djb2(clave) % hash->capacidad;
     campo_t* campo_agregado = campo_crear(clave, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
+    printf("Dato de campo nuevo: %s\n", (char*)campo_agregado->dato);
     hash->carga++;
-    printf("193 Carga: %ld - Capacidad: %ld\n", hash->carga, hash->capacidad);
+    //printf("193 Carga: %ld - Capacidad: %ld\n", hash->carga, hash->capacidad);
+    //printf("%d %d %d", FACTOR_CARGA_MAX, FACTOR_NVA_CAP, FACTOR_CARGA_MIN);
     if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX) hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
+    printf("--191-- Debugging: %s Parametro: %s\n", (char*)hash_obtener(hash, clave), (char*)dato);
     return true;
 }
 
@@ -219,7 +224,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
 }
 
 void destruir_datos(hash_t* hash){
-    printf("221\n");
+    //printf("221\n");
     if (hash->carga == 0) return;
     long unsigned int posicion_arreglo = 0;
     lista_t* lista;
@@ -227,7 +232,7 @@ void destruir_datos(hash_t* hash){
     campo_t* campo;
     printf("227\n");
     while(posicion_arreglo < hash->capacidad){
-        printf("    229 %d\n", posicion_arreglo);
+        //printf("    229 %d\n", posicion_arreglo);
         lista = hash->arreglo[posicion_arreglo];
         if (lista_largo(lista) == 0) {
             posicion_arreglo++;
@@ -254,7 +259,7 @@ void destruir_campos(hash_t* hash){
     lista_t* lista;
     lista_iter_t* iterador_lista;
     campo_t* campo;
-    printf("256\n");
+    //printf("256\n");
 
     while(posicion_arreglo < hash->capacidad){
         lista = hash->arreglo[posicion_arreglo];
@@ -267,7 +272,7 @@ void destruir_campos(hash_t* hash){
         //printf("266\n");
         while(!lista_iter_al_final(iterador_lista)){
             campo = lista_iter_ver_actual(iterador_lista);
-            if (campo == NULL || !campo) printf("AY CARAMBA");
+            //if (campo == NULL || !campo) printf("AY CARAMBA");
             //printf("%s\n", campo->clave);
             campo_destruir_clave(campo);
             lista_iter_avanzar(iterador_lista);

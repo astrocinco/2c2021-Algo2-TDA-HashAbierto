@@ -214,16 +214,14 @@ size_t hash_cantidad(const hash_t *hash){
     return hash->carga;
 }
 
-//void destruir_dato()
+
 
 void des_campo(void* campo){
     if (campo == NULL){
         printf(" 219 null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
         return;
     }
-
     campo_t* dato = campo;
-    
     free(dato->clave);
     free(dato);
 }
@@ -255,7 +253,6 @@ void *hash_borrar(hash_t *hash, const char *clave){
 
     void* dato = hash_obtener(hash, clave);
     campo_t* campo = encontrar_campo(hash, clave);
-    
 
     hash->carga--;
 
@@ -292,63 +289,38 @@ void destruir_datos(hash_t* hash){
         lista_iter_destruir(iterador_lista);
     }
 }
-/*
-void destruir_campos(hash_t* hash){
-    if (hash->carga == 0) return;
-    long unsigned int posicion_arreglo = 0;
-    lista_t* lista;
-    lista_iter_t* iterador_lista;
-    campo_t* campo;
 
-    while(posicion_arreglo < hash->capacidad){
-        lista = hash->arreglo[posicion_arreglo];
-        if (lista_largo(lista) == 0) {
-            posicion_arreglo++;
-            continue;
-        }
-        iterador_lista = lista_iter_crear(lista);
-        while(!lista_iter_al_final(iterador_lista)){
-            campo = lista_iter_ver_actual(iterador_lista);
-
-            campo_destruir_clave(campo);
-            lista_iter_avanzar(iterador_lista);
-        }
-        lista_iter_destruir(iterador_lista);
-        posicion_arreglo++;
+bool destruir_dato(void* dato, void* extra){
+    hash_t* hash = extra;
+    if(!dato){
+        return false;
     }
+    campo_t* campo = dato;
+
+    hash->funcion_destruir_dato(campo->dato);
+    return true;
 
 }
-*/
-
 
 void destruir_listas(hash_t* hash){
     for (size_t i = 0; i < hash->capacidad; i++){
-        lista_t* lista= hash->arreglo[i];
-        //printf("C297\n");
+        lista_t* lista = hash->arreglo[i];
         if (!lista_esta_vacia(lista)){
-            //printf("C299 %lu\n", i);
+            if (hash->funcion_destruir_dato != NULL){
+                lista_iterar(hash->arreglo[i], destruir_dato, hash);
+            }
             lista_destruir(hash->arreglo[i], des_campo);
         }else{
-            //printf("C302 %lu\n", i);
             lista_destruir(hash->arreglo[i],NULL);
         }
     }
 }
 
 void hash_destruir(hash_t *hash){
-    //printf("C306\n");
-    /*
-    destruir_campos(hash);
-    */
-
-
-    //destruir(campo->dato); // Hacer funcion para destruir datos con funcion hash->destruir_dato
 
 
     destruir_listas(hash);
-    //printf("C313\n");
     free(hash->arreglo);
-    //printf("C315\n");
     free(hash);
 }
 

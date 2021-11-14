@@ -4,12 +4,16 @@
 #include <stdio.h>
 #include "lista.h"
 #include "hash.h"
+
 #define CAP_INICIAL 50ul
 #define FACTOR_NVA_CAP 2ul
 #define FACTOR_CARGA_MAX 2.5
 #define FACTOR_CARGA_MIN 0.2
 #define LARGO_MAX_CLAVES 40ul
+
 //#define FUN_HASHING djb2 // Recuperar
+
+
 
 // https://stackoverflow.com/questions/7666509/hash-function-for-string
 unsigned long djb2(const char *str) {
@@ -55,13 +59,12 @@ campo_t* campo_crear(const char* clave, void* dato){
 
     return campo;
 }
-
+/*
 void campo_destruir_clave(campo_t* campo){
     printf("Campo siendo destruido: %s\n", campo->clave);
     free(campo->clave);
-    free(campo);
 }
-
+*/
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     hash_t* hash = malloc(sizeof(hash_t));
     if (hash == NULL) return NULL;
@@ -171,12 +174,12 @@ bool hash_pertenece(const hash_t *hash, const char *clave){
 
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){ 
     if (hash_pertenece(hash, clave)) {
-        printf("185 Guardar ya pertenece\n");
+
         void* dato_reemplazado = hash_borrar(hash, clave);
-        printf("187 Dato reemplazado: %s\n", (char*)dato_reemplazado);
+
         if (hash->funcion_destruir_dato != NULL) {
             hash_destruir_dato_t funcion_dest = hash->funcion_destruir_dato;
-            printf("--178-- Debugging: %s\n", (char*)dato_reemplazado);
+
             funcion_dest(dato_reemplazado);
             //hash->funcion_destruir_dato(dato_reemplazado); // ACORTAR A UN LINEA. ALGO ASÍ    
         }
@@ -209,13 +212,20 @@ size_t hash_cantidad(const hash_t *hash){
     return hash->carga;
 }
 
+void des_campo(void* campo){
+    campo_t* dato = campo;
+    free(dato->clave);
+    free(dato);
+}
+
 void *hash_borrar(hash_t *hash, const char *clave){
     if (!hash_pertenece(hash, clave)) return NULL;
 
     void* dato = hash_obtener(hash, clave);
     lista_iter_t* iterador = aux_posicionar_iterador(hash, clave);
     campo_t* campo = lista_iter_ver_actual(iterador);
-    campo_destruir_clave(campo);
+    //campo_destruir(campo);
+    des_campo(campo);
     lista_iter_destruir(iterador);
     hash->carga--;
 
@@ -252,47 +262,54 @@ void destruir_datos(hash_t* hash){
         lista_iter_destruir(iterador_lista);
     }
 }
-
+/*
 void destruir_campos(hash_t* hash){
     if (hash->carga == 0) return;
     long unsigned int posicion_arreglo = 0;
     lista_t* lista;
     lista_iter_t* iterador_lista;
     campo_t* campo;
-    //printf("256\n");
 
     while(posicion_arreglo < hash->capacidad){
         lista = hash->arreglo[posicion_arreglo];
         if (lista_largo(lista) == 0) {
             posicion_arreglo++;
-            //printf("262\n");
             continue;
         }
         iterador_lista = lista_iter_crear(lista);
-        //printf("266\n");
         while(!lista_iter_al_final(iterador_lista)){
             campo = lista_iter_ver_actual(iterador_lista);
-            //if (campo == NULL || !campo) printf("AY CARAMBA");
-            //printf("%s\n", campo->clave);
+
             campo_destruir_clave(campo);
             lista_iter_avanzar(iterador_lista);
-            //printf("271\n");
         }
-        //printf("273\n");
         lista_iter_destruir(iterador_lista);
         posicion_arreglo++;
     }
+
 }
+*/
+
 
 void destruir_listas(hash_t* hash){
-    for (long unsigned int i = 0; i < hash->capacidad; i++){
-        lista_destruir(hash->arreglo[i], NULL);
+    for (size_t i = 0; i < hash->capacidad; i++){
+        lista_t* lista= hash->arreglo[i];
+        if (!lista_esta_vacia(lista)){
+            lista_destruir(hash->arreglo[i], des_campo);
+        }else{
+            lista_destruir(hash->arreglo[i],NULL);
+        }
     }
 }
 
 void hash_destruir(hash_t *hash){
-    //if (destruir_datos != NULL) destruir_datos(hash);
+    /*
     destruir_campos(hash);
+    */
+
+    
+    //destruir(campo->dato);
+
     destruir_listas(hash);
     free(hash->arreglo);
     free(hash);

@@ -150,7 +150,7 @@ bool hash_redimensionar(hash_t* hash, long unsigned int nueva_capacidad){
             campo = lista_iter_ver_actual(iterador_lista);
             long unsigned int posicion_nuevo = djb2(campo->clave) % hash->capacidad;
             printf("%zu\n", posicion_nuevo);
-            lista_insertar_ultimo(nuevo_arreglo_dinamico[posicion_nuevo], campo);
+            lista_insertar_primero(nuevo_arreglo_dinamico[posicion_nuevo], campo); // Es lo mismo insertar_primero o insertar_ultimo?
             lista_iter_avanzar(iterador_lista);
         }
     }

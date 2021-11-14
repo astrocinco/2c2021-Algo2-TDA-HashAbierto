@@ -169,8 +169,8 @@ static void prueba_hash_reemplazar_con_destruir()
     hash_destruir(hash);
 }
 
-static void prueba_hash_borrar()
-{
+static void prueba_hash_borrar(){
+    printf("PRUEBA HASH BORRAR\n");
     hash_t* hash = hash_crear(NULL);
 
     char *clave1 = "perro", *valor1 = "guau";
@@ -207,8 +207,8 @@ static void prueba_hash_borrar()
     hash_destruir(hash);
 }
 
-static void prueba_hash_clave_vacia()
-{
+static void prueba_hash_clave_vacia(){
+    printf("PRUEBA HASH CLAVE VACIA\n");
     hash_t* hash = hash_crear(NULL);
 
     char *clave = "", *valor = "";
@@ -223,8 +223,8 @@ static void prueba_hash_clave_vacia()
     hash_destruir(hash);
 }
 
-static void prueba_hash_valor_null()
-{
+static void prueba_hash_valor_null(){
+    printf("PRUEBA HAS VALOR NULL\n");
     hash_t* hash = hash_crear(NULL);
 
     char *clave = "", *valor = NULL;
@@ -240,8 +240,8 @@ static void prueba_hash_valor_null()
     hash_destruir(hash);
 }
 
-static void prueba_hash_volumen(size_t largo, bool debug)
-{
+static void prueba_hash_volumen(size_t largo, bool debug){
+    printf("PRUEBA HASH VOLUMEN \n");
     hash_t* hash = hash_crear(NULL);
 
     const size_t largo_clave = 10;
@@ -257,8 +257,9 @@ static void prueba_hash_volumen(size_t largo, bool debug)
         *valores[i] = i;
         ok = hash_guardar(hash, claves[i], valores[i]);
         if (!ok) break;
-    }
 
+        printf("%i, hasta aca\n", i);
+    }
     if (debug) print_test("Prueba hash almacenar muchos elementos", ok);
     if (debug) print_test("Prueba hash la cantidad de elementos es correcta", hash_cantidad(hash) == largo);
 
@@ -308,8 +309,8 @@ static ssize_t buscar(const char* clave, char* claves[], size_t largo)
     return -1;
 }
 
-static void prueba_hash_iterar()
-{
+static void prueba_hash_iterar(){
+    printf("PRUEBA HASH ITERAR\n");
     hash_t* hash = hash_crear(NULL);
 
     char *claves[] = {"perro", "gato", "vaca"};
@@ -431,22 +432,24 @@ static void prueba_hash_iterar_volumen(size_t largo)
 void pruebas_hash_catedra()
 {
     /* Ejecuta todas las pruebas unitarias. */
-    //*
+    
     //prueba_hash_insertar_casero();
-    //prueba_crear_hash_vacio();
-    //prueba_iterar_hash_vacio();
-    prueba_hash_insertar();
-    //prueba_hash_reemplazar();
     /*
-    prueba_hash_reemplazar_con_destruir();
+    */
+    prueba_crear_hash_vacio();
+    prueba_iterar_hash_vacio();
+    prueba_hash_insertar();
+    prueba_hash_reemplazar();
+    prueba_hash_reemplazar_con_destruir();//wip
     prueba_hash_borrar();
     prueba_hash_clave_vacia();
     prueba_hash_valor_null();
+    /*
     prueba_hash_volumen(5000, true);
     prueba_hash_iterar();
     prueba_hash_iterar_volumen(5000);
     */
-    //*/
+    
 }
 
 void pruebas_volumen_catedra(size_t largo)

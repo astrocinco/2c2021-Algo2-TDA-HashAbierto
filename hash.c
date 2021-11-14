@@ -188,15 +188,15 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     } 
 
     long unsigned int posicion = djb2(clave) % hash->capacidad;
-    printf("C190 %lu", posicion);
+    //printf("C190 %lu", posicion);
     campo_t* campo_agregado = campo_crear(clave, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
-    printf("Dato de campo nuevo: %s\n", (char*)campo_agregado->dato);
+    //printf("Dato de campo nuevo: %s\n", (char*)campo_agregado->dato);
     hash->carga++;
     //printf("193 Carga: %ld - Capacidad: %ld\n", hash->carga, hash->capacidad);
     //printf("%d %d %d", FACTOR_CARGA_MAX, FACTOR_NVA_CAP, FACTOR_CARGA_MIN);
     if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX) hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
-    printf("--191-- Debugging: %s Parametro: %s\n", (char*)hash_obtener(hash, clave), (char*)dato);
+    //printf("--191-- Debugging: %s Parametro: %s\n", (char*)hash_obtener(hash, clave), (char*)dato);
     return true;
 }
 
@@ -214,8 +214,16 @@ size_t hash_cantidad(const hash_t *hash){
     return hash->carga;
 }
 
+//void destruir_dato()
+
 void des_campo(void* campo){
+    if (campo == NULL){
+        printf(" 219 null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        return;
+    }
+
     campo_t* dato = campo;
+    
     free(dato->clave);
     free(dato);
 }
@@ -228,6 +236,12 @@ campo_t* encontrar_campo(hash_t* hash, const char* clave){
     while(!lista_iter_al_final(iterador)){
         campo = lista_iter_ver_actual(iterador);
         if (strcmp(campo->clave, clave) == 0){
+
+            // los tres de abajo van en otro lado (func se llama encontrar, no destruir)
+            des_campo(campo);
+            lista_iter_borrar(iterador);
+            lista_iter_destruir(iterador);
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             return campo;
         }
         lista_iter_avanzar(iterador);
@@ -241,7 +255,8 @@ void *hash_borrar(hash_t *hash, const char *clave){
 
     void* dato = hash_obtener(hash, clave);
     campo_t* campo = encontrar_campo(hash, clave);
-    des_campo(campo);
+    
+
     hash->carga--;
 
     if (hash->carga / hash->capacidad < FACTOR_CARGA_MIN && hash->capacidad > CAP_INICIAL) hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP);
@@ -325,7 +340,10 @@ void hash_destruir(hash_t *hash){
     /*
     destruir_campos(hash);
     */
+
+
     //destruir(campo->dato); // Hacer funcion para destruir datos con funcion hash->destruir_dato
+
 
     destruir_listas(hash);
     //printf("C313\n");

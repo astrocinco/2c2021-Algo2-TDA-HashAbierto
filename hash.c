@@ -306,9 +306,7 @@ void hash_destruir(hash_t *hash){
     /*
     destruir_campos(hash);
     */
-
-    
-    //destruir(campo->dato);
+    //destruir(campo->dato); // Hacer funcion para destruir datos con funcion hash->destruir_dato
 
     destruir_listas(hash);
     free(hash->arreglo);

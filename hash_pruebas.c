@@ -99,7 +99,7 @@ static void prueba_hash_insertar()
     print_test("Prueba hash obtener clave3 es valor3", hash_obtener(hash, clave3) == valor3);
     print_test("Prueba hash pertenece clave3, es true", hash_pertenece(hash, clave3));
     //printf("78\n");
-    //hash_destruir(hash);
+    hash_destruir(hash);
     //printf("101\n");
 }
 

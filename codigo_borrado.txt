@@ -1,0 +1,40 @@
+// Acá codigo que borré porque no tenía uso.
+// Lo dejo acá por si hay que recuperarlo
+
+//Funcion auxiliar
+// Iterador interno. Recibe una función y un parametro para esta
+void hash_iterador_interno(hash_t* hash, visitar funcion, void* extra){
+    if (hash->carga == 0) return;
+
+    long unsigned int posicion_arreglo = 0;
+    lista_t* lista;
+    lista_iter_t* iterador_lista;
+    campo_t* campo;
+
+    while(posicion_arreglo < hash->capacidad){
+        lista = hash->arreglo[posicion_arreglo];
+        if (lista_largo(lista) == 0) {
+            posicion_arreglo++;
+            continue;
+        }
+        iterador_lista = lista_iter_crear(lista);
+        while(!lista_iter_al_final(iterador_lista)){
+            campo = lista_iter_ver_actual(iterador_lista);
+            if (extra == NULL){ // Potencialmente redundante
+                funcion(campo->dato, NULL);
+            }
+            else {
+                funcion(campo->dato, extra);
+            }
+            lista_iter_avanzar(iterador_lista);
+        }
+    }
+}
+
+/*
+void campo_destruir_clave(campo_t* campo){
+    printf("Campo siendo destruido: %s\n", campo->clave);
+    free(campo->clave);
+    free(campo);
+}
+*/

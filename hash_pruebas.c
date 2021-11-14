@@ -75,7 +75,6 @@ static void prueba_hash_insertar()
     char *clave2 = "gato", *valor2 = "miau";
     char *clave3 = "vaca", *valor3 = "mu";
 
-    //printf("Prueba linea 55\n");
     /* Inserta 1 valor y luego lo borra */
     print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1));
     print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
@@ -84,8 +83,8 @@ static void prueba_hash_insertar()
     print_test("Prueba hash pertenece clave1, es true", hash_pertenece(hash, clave1));
     print_test("Prueba hash borrar clave1, es valor1", hash_borrar(hash, clave1) == valor1);
     print_test("Prueba hash la cantidad de elementos es 0", hash_cantidad(hash) == 0);
+    print_test("Prueba hash no pertenece clave1, es false", !hash_pertenece(hash, clave1));
 
-    //printf("Prueba linea 65\n");
     /* Inserta otros 2 valores y no los borra (se destruyen con el hash) */
     print_test("Prueba hash insertar clave2", hash_guardar(hash, clave2, valor2));
     print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
@@ -98,9 +97,8 @@ static void prueba_hash_insertar()
     print_test("Prueba hash obtener clave3 es valor3", hash_obtener(hash, clave3) == valor3);
     print_test("Prueba hash obtener clave3 es valor3", hash_obtener(hash, clave3) == valor3);
     print_test("Prueba hash pertenece clave3, es true", hash_pertenece(hash, clave3));
-    //printf("78\n");
+
     hash_destruir(hash);
-    //printf("101\n");
 }
 
 static void prueba_hash_reemplazar()
@@ -170,7 +168,7 @@ static void prueba_hash_reemplazar_con_destruir()
 }
 
 static void prueba_hash_borrar(){
-    printf("PRUEBA HASH BORRAR\n");
+    printf("\nPRUEBAS Hash: Borrar\n");
     hash_t* hash = hash_crear(NULL);
 
     char *clave1 = "perro", *valor1 = "guau";
@@ -208,7 +206,7 @@ static void prueba_hash_borrar(){
 }
 
 static void prueba_hash_clave_vacia(){
-    printf("PRUEBA HASH CLAVE VACIA\n");
+    printf("\nPRUEBAS Hash: Clave vacía\n");
     hash_t* hash = hash_crear(NULL);
 
     char *clave = "", *valor = "";
@@ -224,7 +222,7 @@ static void prueba_hash_clave_vacia(){
 }
 
 static void prueba_hash_valor_null(){
-    printf("PRUEBA HAS VALOR NULL\n");
+    printf("\nPRUEBAS Hash: Valor Null\n");
     hash_t* hash = hash_crear(NULL);
 
     char *clave = "", *valor = NULL;
@@ -241,7 +239,7 @@ static void prueba_hash_valor_null(){
 }
 
 static void prueba_hash_volumen(size_t largo, bool debug){
-    printf("PRUEBA HASH VOLUMEN \n");
+    printf("\nPRUEBAS Hash: Volumen\n");
     hash_t* hash = hash_crear(NULL);
 
     const size_t largo_clave = 10;
@@ -310,7 +308,7 @@ static ssize_t buscar(const char* clave, char* claves[], size_t largo)
 }
 
 static void prueba_hash_iterar(){
-    printf("PRUEBA HASH ITERAR\n");
+    printf("\nPRUEBAS Hash: Iterar\n");
     hash_t* hash = hash_crear(NULL);
 
     char *claves[] = {"perro", "gato", "vaca"};
@@ -363,6 +361,7 @@ static void prueba_hash_iterar(){
 
 static void prueba_hash_iterar_volumen(size_t largo)
 {
+    printf("\nPRUEBAS Hash: Iterar volumen\n");
     hash_t* hash = hash_crear(NULL);
 
     const size_t largo_clave = 10;
@@ -435,6 +434,7 @@ void pruebas_hash_catedra()
     
     //prueba_hash_insertar_casero();
     /*
+    */
     prueba_crear_hash_vacio();
     prueba_iterar_hash_vacio();
     prueba_hash_insertar();
@@ -444,11 +444,10 @@ void pruebas_hash_catedra()
     prueba_hash_clave_vacia();
     prueba_hash_valor_null();
     
-    */
     prueba_hash_volumen(500, true);
-    /*
     prueba_hash_iterar();
     prueba_hash_iterar_volumen(5000);
+    /*
     */
     
 }

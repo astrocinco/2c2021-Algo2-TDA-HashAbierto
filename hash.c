@@ -32,9 +32,9 @@ typedef struct hash
 typedef struct hash_iter
 {
     const hash_t *hash;
+    int nro_elemento;
     int pos_en_arreglo;
     lista_iter_t *iterador_pos_arreglo;
-    bool al_final;
 } hash_iter_t;
 
 typedef struct campo
@@ -322,6 +322,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato)
         }
     }
     long unsigned int posicion = djb2(clave) % hash->capacidad;
+    printf("Posicion: %lu para clave: %s", posicion, clave);
     campo_t *campo_agregado = campo_crear(clave, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
     hash->carga++;
@@ -343,23 +344,30 @@ hash_iter_t *hash_iter_crear(const hash_t *hash)
 
     iterador->hash = hash;
     iterador->pos_en_arreglo = 0;
+    lista_t* lista_pos_arreglo = iterador->hash->arreglo[iterador->pos_en_arreglo];
+    while(lista_esta_vacia(lista_pos_arreglo)){
+        iterador->pos_en_arreglo++;
+        lista_pos_arreglo = iterador->hash->arreglo[iterador->pos_en_arreglo];
+    }
     iterador->iterador_pos_arreglo = lista_iter_crear(iterador->hash->arreglo[iterador->pos_en_arreglo]);
-    if (iterador->hash->carga == 0)
-        iterador->al_final = true;
+    iterador->nro_elemento = 0;
     return iterador;
 }
 
 // Avanza iterador
 bool hash_iter_avanzar(hash_iter_t *iter)
 { // REVISAR
-    if (iter->al_final)
+    if (hash_iter_al_final(iter))
         return false;
 
     if (lista_iter_al_final(iter->iterador_pos_arreglo))
     {
+        //printf("HOLA\n");
         iter->pos_en_arreglo++;
+        //printf("361 Pos actual en arreglo: %u\n", iter->pos_en_arreglo);
         while (lista_esta_vacia(iter->hash->arreglo[iter->pos_en_arreglo]))
         {
+            //printf("364 Pos actual en arreglo: %u\n", iter->pos_en_arreglo);
             iter->pos_en_arreglo++;
         }
         free(iter->iterador_pos_arreglo);
@@ -367,24 +375,30 @@ bool hash_iter_avanzar(hash_iter_t *iter)
     }
     else
     {
+        campo_t* campi = lista_iter_ver_actual(iter->iterador_pos_arreglo);
+        //printf("373 Iter actual %s", campi->clave);
         lista_iter_avanzar(iter->iterador_pos_arreglo);
+        if (lista_iter_al_final(iter->iterador_pos_arreglo)) return hash_iter_avanzar(iter);
     }
+    iter->nro_elemento++;
     return true;
 }
 
 // Devuelve clave actual, esa clave no se puede modificar ni liberar.
 const char *hash_iter_ver_actual(const hash_iter_t *iter)
 {
-    if (iter->al_final)
-        return NULL;
+    //printf("Ver actual -- Iter en lista: %u\n", iter->pos_en_arreglo);
+    if (hash_iter_al_final(iter)) return NULL;
     campo_t *campo_actual = lista_iter_ver_actual(iter->iterador_pos_arreglo);
+    //printf("%p\n", campo_actual);
     return campo_actual->clave;
 }
 
 // Comprueba si terminó la iteración
 bool hash_iter_al_final(const hash_iter_t *iter)
 {
-    return iter->al_final;
+    printf("Al final? Nroelementos iter: %d, carga hash: %ld", iter->nro_elemento, iter->hash->carga);
+    return iter->nro_elemento >= iter->hash->carga;
 }
 
 // Destruye iterador

@@ -325,17 +325,20 @@ static void prueba_hash_iterar(){
     ssize_t indice;
 
     print_test("Prueba hash iterador esta al final, es false", !hash_iter_al_final(iter));
-
+    printf("P328\n");
     /* Primer valor */
     clave = hash_iter_ver_actual(iter);
+    printf("P331\n");
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba hash iterador ver actual, es una clave valida", indice != -1);
     print_test("Prueba hash iterador ver actual, no es el mismo puntero", clave != claves[indice]);
     print_test("Prueba hash iterador avanzar es true", hash_iter_avanzar(iter));
     print_test("Prueba hash iterador esta al final, es false", !hash_iter_al_final(iter));
 
+    printf("P338\n");
     /* Segundo valor */
     clave = hash_iter_ver_actual(iter);
+    printf("P341\n");
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba hash iterador ver actual, es una clave valida", indice != -1);
     print_test("Prueba hash iterador ver actual, no es el mismo puntero", clave != claves[indice]);
@@ -343,6 +346,7 @@ static void prueba_hash_iterar(){
     print_test("Prueba hash iterador esta al final, es false", !hash_iter_al_final(iter));
 
     /* Tercer valor */
+    printf("P349\n");
     clave = hash_iter_ver_actual(iter);
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba hash iterador ver actual, es una clave valida", indice != -1);
@@ -351,6 +355,7 @@ static void prueba_hash_iterar(){
     print_test("Prueba hash iterador esta al final, es true", hash_iter_al_final(iter));
 
     /* Vuelve a tratar de avanzar, por las dudas */
+    printf("P358\n");
     print_test("Prueba hash iterador ver actual, es NULL", !hash_iter_ver_actual(iter));
     print_test("Prueba hash iterador avanzar es false", !hash_iter_avanzar(iter));
     print_test("Prueba hash iterador esta al final, es true", hash_iter_al_final(iter));
@@ -444,9 +449,9 @@ void pruebas_hash_catedra()
     prueba_hash_valor_null();
     */
     
-    prueba_hash_volumen(500, true); // 1
-    /*
     prueba_hash_iterar(); // 2
+    /*
+    prueba_hash_volumen(500, true); // 1
     prueba_hash_iterar_volumen(5000); // 3
     */
     

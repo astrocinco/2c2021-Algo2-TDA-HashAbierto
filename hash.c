@@ -207,6 +207,7 @@ void borrar_campo(hash_t *hash, const char *clave)
 }
 
 void hash_destruir(hash_t *hash){
+    //printf("Destruyendo: cap hash: %lu\n", hash->capacidad);
     destruir_listas(hash);
     free(hash->arreglo);
     free(hash);
@@ -223,6 +224,8 @@ bool guardar_campo(void* dato, void* extra){
 }
 
 bool hash_redimensionar(hash_t *hash, long unsigned int nueva_capacidad){
+    //printf("Nueva cap: %lu\n", nueva_capacidad);
+    if (nueva_capacidad < CAP_INICIAL) nueva_capacidad = CAP_INICIAL;
     void **nuevo_arreglo = malloc(sizeof(lista_t *) * nueva_capacidad);
     if (nuevo_arreglo == NULL) return false;
     void** viejo_arreglo = hash->arreglo;
@@ -237,9 +240,7 @@ bool hash_redimensionar(hash_t *hash, long unsigned int nueva_capacidad){
     for (int i = 0; i < vieja_cap; i++)
     {
         lista_actual = viejo_arreglo[i];
-        if (lista_esta_vacia(lista_actual))
-            continue;
-        lista_iterar(lista_actual, guardar_campo, hash);
+        if (!lista_esta_vacia(lista_actual)) lista_iterar(lista_actual, guardar_campo, hash);
         lista_destruir(lista_actual, NULL);
     }
     free(viejo_arreglo);

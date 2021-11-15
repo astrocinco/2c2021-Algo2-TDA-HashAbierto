@@ -238,7 +238,7 @@ void lista_iterar(lista_t *lista,visitar visita, void *extra){
 			visitado = visita(nodo->dato, NULL);
 			nodo = nodo->siguiente;
 		}else{
-			visitado = visita(nodo->dato,extra);
+			visitado = visita(nodo->dato,extra); // 
 			nodo = nodo->siguiente;
 		}
 	}

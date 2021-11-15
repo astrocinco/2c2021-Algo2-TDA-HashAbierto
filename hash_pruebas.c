@@ -445,9 +445,9 @@ void pruebas_hash_catedra()
     prueba_hash_valor_null();
     
     prueba_hash_volumen(500, true);
+    /*
     prueba_hash_iterar();
     prueba_hash_iterar_volumen(5000);
-    /*
     */
     
 }

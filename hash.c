@@ -393,4 +393,4 @@ void hash_iter_destruir(hash_iter_t *iter)
     free(iter);
 }
 
-// 13/11
+// 15/11

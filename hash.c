@@ -4,11 +4,11 @@
 #include <stdio.h>
 #include "lista.h"
 #include "hash.h"
-const int CAP_INICIAL = 50;
-const int FACTOR_NVA_CAP = 2;
-const double FACTOR_CARGA_MAX = 2.5;
-const double FACTOR_CARGA_MIN = 0.2;
-const int LARGO_MAX_CLAVES = 200;
+#define CAP_INICIAL 50ul
+#define FACTOR_NVA_CAP 2ul
+#define FACTOR_CARGA_MAX 2.5
+#define FACTOR_CARGA_MIN 0.2
+#define LARGO_MAX_CLAVES 150ul
 // #define FUN_HASHING djb2 // Recuperar
 
 // Estructuras
@@ -174,7 +174,6 @@ bool guardar_campo(void* dato, void* extra){
 }
 
 bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad){
-    printf("Nueva capacidad: %lu\n", nueva_capacidad);
     if (nueva_capacidad < CAP_INICIAL) nueva_capacidad = CAP_INICIAL;
     void** nuevo_arreglo = malloc(sizeof(lista_t*) * nueva_capacidad);
     if (nuevo_arreglo == NULL) return false;

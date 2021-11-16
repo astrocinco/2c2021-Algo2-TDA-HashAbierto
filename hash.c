@@ -345,6 +345,7 @@ hash_iter_t *hash_iter_crear(const hash_t *hash)
     iterador->hash = hash;
     iterador->pos_en_arreglo = 0;
     if (hash->carga == 0) {
+        iterador->iterador_lista_actual = NULL;
         iterador->pos_en_arreglo = -1;
         return iterador;
     }
@@ -430,7 +431,7 @@ bool hash_iter_al_final(const hash_iter_t *iter)
 // Destruye iterador
 void hash_iter_destruir(hash_iter_t *iter)
 {
-    lista_iter_destruir(iter->iterador_lista_actual);
+    if(iter->iterador_lista_actual != NULL) lista_iter_destruir(iter->iterador_lista_actual);
     //free(iter->iterador_lista_actual);
     free(iter);
 }

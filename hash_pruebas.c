@@ -440,17 +440,17 @@ void pruebas_hash_catedra()
     
     //prueba_hash_insertar_casero();
     /*
+    */
     prueba_crear_hash_vacio();
     prueba_iterar_hash_vacio();
     prueba_hash_insertar();
     prueba_hash_reemplazar();
-    prueba_hash_reemplazar_con_destruir();//wip
+    prueba_hash_reemplazar_con_destruir();
     prueba_hash_borrar();
     prueba_hash_clave_vacia();
     prueba_hash_valor_null();
-    */
-    
     prueba_hash_iterar(); // 2
+    
     /*
     prueba_hash_volumen(500, true); // 1
     prueba_hash_iterar_volumen(5000); // 3

@@ -21,8 +21,8 @@ typedef struct hash{
 
 typedef struct hash_iter{
     const hash_t* hash;
-    int nro_elemento;
-    int pos_en_arreglo;
+    int nro_elemento; // Eliminar si no se usa
+    size_t pos_en_arreglo;
     lista_iter_t* iterador_lista_actual;
 } hash_iter_t;
 
@@ -217,6 +217,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
         }
     }
     size_t posicion = djb2(clave) % hash->capacidad;
+    printf("Para clave %s, posición %lu\n", clave, posicion);
     campo_t* campo_agregado = campo_crear(clave, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
     hash->carga++;
@@ -254,7 +255,6 @@ hash_iter_t* hash_iter_crear(const hash_t* hash)
 // Avanza iterador
 bool hash_iter_avanzar(hash_iter_t* iter){
     if (hash_iter_al_final(iter)) return false;
-
     lista_iter_avanzar(iter->iterador_lista_actual);
     if (lista_iter_al_final(iter->iterador_lista_actual)){
         iter->pos_en_arreglo++;
@@ -264,9 +264,9 @@ bool hash_iter_avanzar(hash_iter_t* iter){
                 iter->pos_en_arreglo = -1;
                 return true;
             }
+        }
         lista_iter_destruir(iter->iterador_lista_actual);
         iter->iterador_lista_actual = lista_iter_crear(iter->hash->arreglo[iter->pos_en_arreglo]);
-        }
     }
     return true;
 }

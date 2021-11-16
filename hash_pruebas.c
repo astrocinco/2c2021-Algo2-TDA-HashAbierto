@@ -262,6 +262,7 @@ static void prueba_hash_volumen(size_t largo, bool debug)
 
     /* Destruye el hash y crea uno nuevo que sí libera */
     hash_destruir(hash);
+    printf("PRUebas hash crean nuevo hash\n");
     hash = hash_crear(free);
 
     /* Inserta 'largo' parejas en el hash */

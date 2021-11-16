@@ -8,7 +8,7 @@ const int CAP_INICIAL = 50;
 const int FACTOR_NVA_CAP = 2;
 const double FACTOR_CARGA_MAX = 2.5;
 const double FACTOR_CARGA_MIN = 0.2;
-const int LARGO_MAX_CLAVES = 40;
+const int LARGO_MAX_CLAVES = 200;
 // #define FUN_HASHING djb2 // Recuperar
 
 // Estructuras
@@ -174,6 +174,7 @@ bool guardar_campo(void* dato, void* extra){
 }
 
 bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad){
+    printf("Nueva capacidad: %lu\n", nueva_capacidad);
     if (nueva_capacidad < CAP_INICIAL) nueva_capacidad = CAP_INICIAL;
     void** nuevo_arreglo = malloc(sizeof(lista_t*) * nueva_capacidad);
     if (nuevo_arreglo == NULL) return false;
@@ -200,7 +201,9 @@ void* hash_borrar(hash_t* hash, const char* clave){
     void* dato = hash_obtener(hash, clave);
     borrar_campo(hash, clave);
     hash->carga--;
-    if (hash->carga / hash->capacidad < FACTOR_CARGA_MIN && hash->capacidad > CAP_INICIAL) hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP);
+    if (hash->carga / hash->capacidad < FACTOR_CARGA_MIN && hash->capacidad > CAP_INICIAL) {
+        //hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP); <----- SOLUCIONAR. No funciona redimensionar hacia abajo, hay un doble free
+    }
     return dato;
 }
 

@@ -325,20 +325,20 @@ static void prueba_hash_iterar(){
     ssize_t indice;
 
     print_test("Prueba hash iterador esta al final, es false", !hash_iter_al_final(iter));
-    printf("P328\n");
+    //printf("P328\n");
     /* Primer valor */
+    //printf("P331 primer valor\n");
     clave = hash_iter_ver_actual(iter);
-    printf("P331\n");
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba hash iterador ver actual, es una clave valida", indice != -1);
     print_test("Prueba hash iterador ver actual, no es el mismo puntero", clave != claves[indice]);
     print_test("Prueba hash iterador avanzar es true", hash_iter_avanzar(iter));
     print_test("Prueba hash iterador esta al final, es false", !hash_iter_al_final(iter));
 
-    printf("P338\n");
+    //printf("P338\n");
     /* Segundo valor */
     clave = hash_iter_ver_actual(iter);
-    printf("P341\n");
+    //printf("P341 segundo valor\n");
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba hash iterador ver actual, es una clave valida", indice != -1);
     print_test("Prueba hash iterador ver actual, no es el mismo puntero", clave != claves[indice]);
@@ -346,16 +346,17 @@ static void prueba_hash_iterar(){
     print_test("Prueba hash iterador esta al final, es false", !hash_iter_al_final(iter));
 
     /* Tercer valor */
-    printf("P349\n");
+    //printf("P349 tercer valor\n");
     clave = hash_iter_ver_actual(iter);
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba hash iterador ver actual, es una clave valida", indice != -1);
     print_test("Prueba hash iterador ver actual, no es el mismo puntero", clave != claves[indice]);
+    //printf("P349 avanza despues de tercer valor\n");
     hash_iter_avanzar(iter);
     print_test("Prueba hash iterador esta al final, es true", hash_iter_al_final(iter));
 
     /* Vuelve a tratar de avanzar, por las dudas */
-    printf("P358\n");
+    //printf("P358 vuelve a tratar de avanzar\n");
     print_test("Prueba hash iterador ver actual, es NULL", !hash_iter_ver_actual(iter));
     print_test("Prueba hash iterador avanzar es false", !hash_iter_avanzar(iter));
     print_test("Prueba hash iterador esta al final, es true", hash_iter_al_final(iter));

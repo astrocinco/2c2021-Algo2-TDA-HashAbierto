@@ -34,7 +34,7 @@ typedef struct hash_iter
     const hash_t *hash;
     int nro_elemento;
     int pos_en_arreglo;
-    lista_iter_t *iterador_pos_arreglo;
+    lista_iter_t *iterador_lista_actual;
 } hash_iter_t;
 
 typedef struct campo
@@ -207,7 +207,7 @@ void borrar_campo(hash_t *hash, const char *clave)
 }
 
 void hash_destruir(hash_t *hash){
-    printf("Destruyendo: cap hash: %lu\n", hash->capacidad);
+    //printf("Destruyendo: cap hash: %lu\n", hash->capacidad);
     destruir_listas(hash);
     free(hash->arreglo);
     free(hash);
@@ -322,7 +322,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato)
         }
     }
     long unsigned int posicion = djb2(clave) % hash->capacidad;
-    printf("Posicion: %lu para clave: %s", posicion, clave);
+    //printf("Posicion: %lu para clave: %s\n", posicion, clave);
     campo_t *campo_agregado = campo_crear(clave, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
     hash->carga++;
@@ -344,42 +344,69 @@ hash_iter_t *hash_iter_crear(const hash_t *hash)
 
     iterador->hash = hash;
     iterador->pos_en_arreglo = 0;
+    if (hash->carga == 0) {
+        iterador->pos_en_arreglo = -1;
+        return iterador;
+    }
     lista_t* lista_pos_arreglo = iterador->hash->arreglo[iterador->pos_en_arreglo];
     while(lista_esta_vacia(lista_pos_arreglo)){
         iterador->pos_en_arreglo++;
         lista_pos_arreglo = iterador->hash->arreglo[iterador->pos_en_arreglo];
     }
-    iterador->iterador_pos_arreglo = lista_iter_crear(iterador->hash->arreglo[iterador->pos_en_arreglo]);
+    iterador->iterador_lista_actual = lista_iter_crear(iterador->hash->arreglo[iterador->pos_en_arreglo]);
     iterador->nro_elemento = 0;
     return iterador;
 }
 
 // Avanza iterador
-bool hash_iter_avanzar(hash_iter_t *iter)
-{ // REVISAR
-    if (hash_iter_al_final(iter))
-        return false;
+bool hash_iter_avanzar(hash_iter_t *iter){
+    if (hash_iter_al_final(iter)) return false;
+    //lista_t* lista_actual = iter->hash->arreglo[iter->pos_en_arreglo];
+    //lista_iter_t* iterador_actual = iter->iterador_lista_actual;
 
-    if (lista_iter_al_final(iter->iterador_pos_arreglo))
-    {
+    lista_iter_avanzar(iter->iterador_lista_actual);
+
+    if (lista_iter_al_final(iter->iterador_lista_actual)){
+        //printf("trigger 370\n");
+        //lista_iter_destruir(iter->iterador_lista_actual);
+        iter->pos_en_arreglo++;
+        while(lista_esta_vacia(iter->hash->arreglo[iter->pos_en_arreglo])){
+            //printf("    374 pos_arreglo: %d\n", iter->pos_en_arreglo);
+            iter->pos_en_arreglo++;
+            if (iter->pos_en_arreglo == iter->hash->capacidad){
+                iter->pos_en_arreglo = -1;
+                return true;
+            }
+            //lista_actual = iter->hash->arreglo[iter->pos_en_arreglo];
+        lista_iter_destruir(iter->iterador_lista_actual);
+        iter->iterador_lista_actual = lista_iter_crear(iter->hash->arreglo[iter->pos_en_arreglo]);
+        }
+    }
+    return true;
+}
+
+
+bool hash_iter_avanzar_2(hash_iter_t *iter)
+{ // REVISAR
+    if (hash_iter_al_final(iter))return false;
+
+    if (lista_iter_al_final(iter->iterador_lista_actual)){
         //printf("HOLA\n");
         iter->pos_en_arreglo++;
         //printf("361 Pos actual en arreglo: %u\n", iter->pos_en_arreglo);
-        while (lista_esta_vacia(iter->hash->arreglo[iter->pos_en_arreglo]))
-        {
+        while (lista_esta_vacia(iter->hash->arreglo[iter->pos_en_arreglo])){
             //printf("364 Pos actual en arreglo: %u\n", iter->pos_en_arreglo);
             iter->pos_en_arreglo++;
         }
-        free(iter->iterador_pos_arreglo);
-        iter->iterador_pos_arreglo = lista_iter_crear(iter->hash->arreglo[iter->pos_en_arreglo]);
-    }
-    else
-    {
-        campo_t* campi = lista_iter_ver_actual(iter->iterador_pos_arreglo);
+        free(iter->iterador_lista_actual);
+        iter->iterador_lista_actual = lista_iter_crear(iter->hash->arreglo[iter->pos_en_arreglo]);
+    }else{
+        campo_t* campi = lista_iter_ver_actual(iter->iterador_lista_actual);
         //printf("373 Iter actual %s", campi->clave);
-        lista_iter_avanzar(iter->iterador_pos_arreglo);
-        if (lista_iter_al_final(iter->iterador_pos_arreglo)) return hash_iter_avanzar(iter);
+        lista_iter_avanzar(iter->iterador_lista_actual);
+        if (lista_iter_al_final(iter->iterador_lista_actual)) return hash_iter_avanzar(iter);
     }
+    printf("C383 iter->nroelemento ++\n");
     iter->nro_elemento++;
     return true;
 }
@@ -389,22 +416,22 @@ const char *hash_iter_ver_actual(const hash_iter_t *iter)
 {
     //printf("Ver actual -- Iter en lista: %u\n", iter->pos_en_arreglo);
     if (hash_iter_al_final(iter)) return NULL;
-    campo_t *campo_actual = lista_iter_ver_actual(iter->iterador_pos_arreglo);
-    //printf("%p\n", campo_actual);
+    campo_t *campo_actual = lista_iter_ver_actual(iter->iterador_lista_actual);
+    //printf("Ver actual %p\n", campo_actual);
     return campo_actual->clave;
 }
 
 // Comprueba si terminó la iteración
 bool hash_iter_al_final(const hash_iter_t *iter)
 {
-    printf("Al final? Nroelementos iter: %d, carga hash: %ld", iter->nro_elemento, iter->hash->carga);
-    return iter->nro_elemento >= iter->hash->carga;
+    return iter->pos_en_arreglo == -1;
 }
 
 // Destruye iterador
 void hash_iter_destruir(hash_iter_t *iter)
 {
-    free(iter->iterador_pos_arreglo);
+    lista_iter_destruir(iter->iterador_lista_actual);
+    //free(iter->iterador_lista_actual);
     free(iter);
 }
 

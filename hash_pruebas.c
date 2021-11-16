@@ -218,8 +218,8 @@ static void prueba_hash_valor_null(){
     hash_destruir(hash);
 }
 
-static void prueba_hash_volumen(size_t largo, bool debug){
-    printf("\nPRUEBAS Hash: Volumen\n");
+static void prueba_hash_volumen(size_t largo, bool debug)
+{
     hash_t* hash = hash_crear(NULL);
 
     const size_t largo_clave = 10;
@@ -235,9 +235,8 @@ static void prueba_hash_volumen(size_t largo, bool debug){
         *valores[i] = i;
         ok = hash_guardar(hash, claves[i], valores[i]);
         if (!ok) break;
-
-        //printf("%i, hasta aca\n", i);
     }
+
     if (debug) print_test("Prueba hash almacenar muchos elementos", ok);
     if (debug) print_test("Prueba hash la cantidad de elementos es correcta", hash_cantidad(hash) == largo);
 
@@ -248,7 +247,7 @@ static void prueba_hash_volumen(size_t largo, bool debug){
         ok = hash_obtener(hash, claves[i]) == valores[i];
         if (!ok) break;
     }
-    
+
     if (debug) print_test("Prueba hash pertenece y obtener muchos elementos", ok);
     if (debug) print_test("Prueba hash la cantidad de elementos es correcta", hash_cantidad(hash) == largo);
 
@@ -428,11 +427,11 @@ void pruebas_hash_catedra()
     prueba_hash_borrar();
     prueba_hash_clave_vacia();
     prueba_hash_valor_null();
+    prueba_hash_volumen(500, true); // 1
     prueba_hash_iterar(); // 2
+    prueba_hash_iterar_volumen(5000); // 3
     
     /*
-    prueba_hash_volumen(500, true); // 1
-    prueba_hash_iterar_volumen(5000); // 3
     */
     
 }

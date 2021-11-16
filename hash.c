@@ -132,13 +132,9 @@ void destruir_listas(hash_t* hash){
     for (size_t i = 0; i < hash->capacidad; i++){
         lista_t* lista = hash->arreglo[i];
         if (!lista_esta_vacia(lista)){
-            if (hash->funcion_destruir_dato != NULL){
-                lista_iterar(hash->arreglo[i], destruir_dato, hash);
-            }
+            if (hash->funcion_destruir_dato != NULL) lista_iterar(hash->arreglo[i], destruir_dato, hash);
             lista_destruir(hash->arreglo[i], des_campo);
-        }else{
-            lista_destruir(hash->arreglo[i], NULL);
-        }
+        } else lista_destruir(hash->arreglo[i], NULL);
     }
 }
 
@@ -181,6 +177,7 @@ bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad){
     if (nueva_capacidad < CAP_INICIAL) nueva_capacidad = CAP_INICIAL;
     void** nuevo_arreglo = malloc(sizeof(lista_t*) * nueva_capacidad);
     if (nuevo_arreglo == NULL) return false;
+    
     void** viejo_arreglo = hash->arreglo;
     size_t vieja_cap = hash->capacidad;
     lista_t* lista_actual;
@@ -217,12 +214,11 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
         }
     }
     size_t posicion = djb2(clave) % hash->capacidad;
-    printf("Para clave %s, posición %lu\n", clave, posicion);
     campo_t* campo_agregado = campo_crear(clave, dato);
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
     hash->carga++;
 
-    if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX)hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
+    if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX) hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
     return true;
 }
 

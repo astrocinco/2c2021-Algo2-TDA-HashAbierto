@@ -128,17 +128,17 @@ bool destruir_dato(void* dato, void* extra){
     return true;
 }
 
-void destruir_listas(hash_t* hash){
+void hash_destruir_listas(hash_t* hash){
     for (size_t i = 0; i < hash->capacidad; i++){
         lista_t* lista = hash->arreglo[i];
         if (!lista_esta_vacia(lista)){
-            if (hash->funcion_destruir_dato != NULL) lista_iterar(hash->arreglo[i], destruir_dato, hash);
+            if (hash->funcion_destruir_dato != NULL) lista_iterar(hash->arreglo[i], destruir_dato, hash); 
             lista_destruir(hash->arreglo[i], des_campo);
         } else lista_destruir(hash->arreglo[i], NULL);
     }
 }
 
-void borrar_campo(hash_t* hash, const char* clave){
+void hash_borrar_campo(hash_t* hash, const char* clave){
     size_t posicion = djb2(clave) % hash->capacidad;
     campo_t* campo;
     lista_t* lista = hash->arreglo[posicion];
@@ -146,9 +146,11 @@ void borrar_campo(hash_t* hash, const char* clave){
     while (!lista_iter_al_final(iterador)){
         campo = lista_iter_ver_actual(iterador);
         if (strcmp(campo->clave, clave) == 0){
+            //printf("149 lista nro: %lu %lu\n", posicion, lista_largo(lista));
+            campo = lista_iter_borrar(iterador);
             des_campo(campo);
-            lista_iter_borrar(iterador);
             lista_iter_destruir(iterador);
+            //printf("153 lista nro: %lu %lu\n", posicion, lista_largo(lista));
             return;
         }
         lista_iter_avanzar(iterador);
@@ -158,7 +160,7 @@ void borrar_campo(hash_t* hash, const char* clave){
 }
 
 void hash_destruir(hash_t* hash){
-    destruir_listas(hash);
+    hash_destruir_listas(hash);
     free(hash->arreglo);
     free(hash);
 }
@@ -196,12 +198,14 @@ bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad){
 }
 
 void* hash_borrar(hash_t* hash, const char* clave){
+    //printf("Se mandó a borrar\n");
     if (!hash_pertenece(hash, clave))return NULL;
     void* dato = hash_obtener(hash, clave);
-    borrar_campo(hash, clave);
+    hash_borrar_campo(hash, clave);
     hash->carga--;
     if (hash->carga / hash->capacidad < FACTOR_CARGA_MIN && hash->capacidad > CAP_INICIAL) {
-        //hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP); <----- SOLUCIONAR. No funciona redimensionar hacia abajo, hay un doble free
+        printf("--------Se mandó a achicar\n");
+        hash_redimensionar(hash, hash->capacidad / FACTOR_NVA_CAP); // <----- SOLUCIONAR. No funciona redimensionar hacia abajo, hay un doble free
     }
     return dato;
 }
@@ -220,7 +224,10 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
     lista_insertar_ultimo(hash->arreglo[posicion], campo_agregado);
     hash->carga++;
 
-    if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX) hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
+    if (hash->carga / hash->capacidad > FACTOR_CARGA_MAX) {
+        printf("--------Se mandó a agrandar\n");
+        hash_redimensionar(hash, hash->capacidad * FACTOR_NVA_CAP);
+    }
     return true;
 }
 
